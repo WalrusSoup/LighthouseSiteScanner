@@ -67,6 +67,11 @@ function writeResultToFile(page, report, hasAlerts)
     const chrome = await chromeLauncher.launch(chromeOptions);
     lighthouseOptions.port = chrome.port;
 
+    // For wordpress, don't scan blog posts
+    let pages = sites.filter(item => {
+        return !item.includes('/blog/');
+    });
+
     for(let page of pages) {
         let hasAlerts = false;
         console.log(`testing: ${page}`);
