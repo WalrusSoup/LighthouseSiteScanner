@@ -4,9 +4,10 @@ const chromium = require('chromium');
 const chromeLauncher = require('chrome-launcher');
 const Sitemapper = require('sitemapper');
 const commandLineArgs = require('command-line-args');
-const options = commandLineArgs({
-    name: 'url', alias: 'u', type: String
-});
+const options = commandLineArgs([
+    { name: 'url', alias: 'u', type: String },
+    { name: 'exclude', alias: 'x', type: String, multiple: true, optional: true }
+]);
 const rundate = new Date().toISOString().replace(/\//g, '-').replace(/:/g, '-');
 
 let chromeOptions = {
@@ -54,23 +55,31 @@ function writeResultToFile(page, report, hasAlerts)
     if(pageSlug === '') {
         pageSlug = 'index';
     }
-    let targetFile = `reports/${rundate}/pass/${pageSlug}.html`
-    if(hasAlerts !== false) {
-        targetFile = `reports/${rundate}/fail/${pageSlug}.html`
-    }
+    let targetFile = `reports/${rundate}/${hasAlerts ? 'fail' : 'pass'}/${pageSlug}.html`
     fs.writeFileSync(`${targetFile}`, report);
 }
 
-(async () => {
+async function getPagesToCheck() {
     const mapper = new Sitemapper({timeout: 5000});
     const { sites } = await mapper.fetch(options.url);
+    if(!options.exclude) {
+        options.exclude = [];
+    }
+    let pages = sites.filter(item => {
+        for(let exclusion of options.exclude) {
+            if(item.includes(exclusion)) {
+                return false;
+            }
+        }
+        return true;
+    });
+    return pages;
+}
+
+(async () => {
+    const pages = await getPagesToCheck();
     const chrome = await chromeLauncher.launch(chromeOptions);
     lighthouseOptions.port = chrome.port;
-
-    // For wordpress, don't scan blog posts
-    let pages = sites.filter(item => {
-        return !item.includes('/blog/');
-    });
 
     for(let page of pages) {
         let hasAlerts = false;
