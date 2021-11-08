@@ -9,6 +9,8 @@ After running npm install, simply call the tool with -u and feed it the main sit
 ```
 npm install
 node lighthouse.js -u [sitemap_url_here]
+// with exclusions of pages under /blog/ and /author/
+node lighthouse.js -u [sitemap_url_here] -x /blog/ /author/
 ```
 
 ## Output
