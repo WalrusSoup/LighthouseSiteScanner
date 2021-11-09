@@ -1,14 +1,13 @@
-import fs from "fs";
-import lighthouse from "lighthouse";
+import * as fs from "fs";
+import * as lighthouse from "lighthouse";
 import { launch } from "chrome-launcher"
 import Sitemapper from "sitemapper";
 import { args } from "./arguments";
 import { path } from "chromium";
+import { exit } from "process";
 
-console.log(lighthouse);
 const reportFolder: string = new Date().toISOString().replace(/\//g, '-').replace(/:/g, '-');
 
-console.log(path);
 const chromeOptions = {
     chromeFlags: ['--headless', '--disable-dev-shm-usage'],
     chromePath: path

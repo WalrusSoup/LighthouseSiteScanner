@@ -2,3 +2,4 @@ reports/*
 node_modules/*
 .idea
 .lighthouseci
+build/*
